@@ -47,12 +47,17 @@ extern "C" void rhm_matrix_destroy(RhmMatrix *state) { if (state) { led_matrix_d
 extern "C" int rhm_matrix_width(const RhmMatrix *state) { return state ? state->width : -1; }
 extern "C" int rhm_matrix_height(const RhmMatrix *state) { return state ? state->height : -1; }
 extern "C" int rhm_matrix_present_rgb_at(RhmMatrix *state,const uint8_t *pixels,size_t bytes,int width,int height,int x,int y) {
-  if (!state || !pixels) return -1; size_t expected=0; int check=expected_bytes(width,height,&expected);
-  if (check) return check; if (bytes != expected) return -5;
-  set_image(state->offscreen,x,y,pixels,bytes,width,height,0); return swap(state);
+  if (!state || !pixels) return -1;
+  size_t expected=0;
+  int check=expected_bytes(width,height,&expected);
+  if (check) return check;
+  if (bytes != expected) return -5;
+  set_image(state->offscreen,x,y,pixels,bytes,width,height,0);
+  return swap(state);
 }
 extern "C" int rhm_matrix_present_rgb(RhmMatrix *state,const uint8_t *pixels,size_t bytes,int width,int height) {
-  if (!state) return -1; if (width != state->width || height != state->height) return -2;
+  if (!state) return -1;
+  if (width != state->width || height != state->height) return -2;
   return rhm_matrix_present_rgb_at(state,pixels,bytes,width,height,0,0);
 }
 extern "C" int rhm_matrix_clear(RhmMatrix *state) { if (!state) return -1; led_canvas_clear(state->offscreen); return swap(state); }

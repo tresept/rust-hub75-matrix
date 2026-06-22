@@ -1,5 +1,10 @@
 use crate::{Error, MatrixConfig, Result, ffi};
-use std::{ffi::CStr, marker::PhantomData, ptr::NonNull, rc::Rc};
+use std::{
+    ffi::{CStr, c_char},
+    marker::PhantomData,
+    ptr::NonNull,
+    rc::Rc,
+};
 
 pub struct Matrix {
     raw: NonNull<ffi::RhmMatrix>,
@@ -10,7 +15,7 @@ pub struct Matrix {
 impl Matrix {
     pub fn new(config: MatrixConfig) -> Result<Self> {
         let native = config.to_native()?;
-        let mut error = [0_i8; 256];
+        let mut error = [0 as c_char; 256];
         let raw = unsafe { ffi::rhm_matrix_create(&native.raw, error.as_mut_ptr(), error.len()) };
         let raw = NonNull::new(raw).ok_or_else(|| {
             Error::Initialization(
@@ -113,8 +118,8 @@ impl Matrix {
         Self::native_result(unsafe { ffi::rhm_matrix_fill(self.raw.as_ptr(), red, green, blue) })
     }
     pub fn brightness(&self) -> Result<u8> {
-        u8::try_from(unsafe { ffi::rhm_matrix_get_brightness(self.raw.as_ptr()) })
-            .map_err(|code| Error::Native(code.into()))
+        let brightness = unsafe { ffi::rhm_matrix_get_brightness(self.raw.as_ptr()) };
+        u8::try_from(brightness).map_err(|_| Error::Native(brightness))
     }
     pub fn set_brightness(&mut self, brightness: u8) -> Result<()> {
         if brightness > 100 {
