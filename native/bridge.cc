@@ -1,7 +1,9 @@
 #include "bridge.h"
 #include "led-matrix-c.h"
+#include <chrono>
 #include <cstring>
 #include <new>
+#include <thread>
 
 struct RhmMatrix { struct RGBLedMatrix *matrix; struct LedCanvas *offscreen; int width; int height; };
 
@@ -43,7 +45,21 @@ extern "C" RhmMatrix *rhm_matrix_create(const RhmConfig *config, char *error, si
     return result;
   } catch (...) { write_error(error,error_len,"C++ exception during matrix initialization"); return nullptr; }
 }
-extern "C" void rhm_matrix_destroy(RhmMatrix *state) { if (state) { led_matrix_delete(state->matrix); delete state; } }
+extern "C" void rhm_matrix_destroy(RhmMatrix *state) {
+  if (!state) return;
+
+  // Leave the panel with a latched black frame before its refresh thread and
+  // output-enable state are torn down. This is best-effort cleanup only.
+  if (state->matrix && state->offscreen) {
+    led_canvas_clear(state->offscreen);
+    struct LedCanvas *next = led_matrix_swap_on_vsync(state->matrix, state->offscreen);
+    if (next) state->offscreen = next;
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+
+  led_matrix_delete(state->matrix);
+  delete state;
+}
 extern "C" int rhm_matrix_width(const RhmMatrix *state) { return state ? state->width : -1; }
 extern "C" int rhm_matrix_height(const RhmMatrix *state) { return state ? state->height : -1; }
 extern "C" int rhm_matrix_present_rgb_at(RhmMatrix *state,const uint8_t *pixels,size_t bytes,int width,int height,int x,int y) {

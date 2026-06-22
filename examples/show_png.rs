@@ -81,5 +81,7 @@ fn main() -> Result<()> {
         thread::sleep(Duration::from_millis(100));
     }
     m.clear()?;
+    // Let at least one completed scan use the latched black frame.
+    thread::sleep(Duration::from_millis(100));
     Ok(())
 }

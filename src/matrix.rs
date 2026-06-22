@@ -132,6 +132,11 @@ impl Matrix {
 }
 impl Drop for Matrix {
     fn drop(&mut self) {
-        unsafe { ffi::rhm_matrix_destroy(self.raw.as_ptr()) }
+        // Drop cannot return failures. Ask the bridge to latch a black frame
+        // before releasing the hardware as a best-effort fallback.
+        unsafe {
+            let _ = ffi::rhm_matrix_clear(self.raw.as_ptr());
+            ffi::rhm_matrix_destroy(self.raw.as_ptr());
+        }
     }
 }

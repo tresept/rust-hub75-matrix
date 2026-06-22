@@ -59,5 +59,6 @@ fn main() -> Result<()> {
         thread::sleep(Duration::from_millis(100));
     }
     m.clear()?;
+    thread::sleep(Duration::from_millis(100));
     Ok(())
 }
