@@ -1,6 +1,6 @@
 # rust-hub75-matrix
 
-`rpi-rgb-led-matrix` を通じて、完成済みのRGB8フレームをHUB75パネルへ安全に出力する薄いRustラッパーです。PNGのデコード、文字描画、合成、アニメーションは本クレートの責務ではありません。
+`rpi-rgb-led-matrix` を通じて、完成済みのRGB8フレームをHUB75パネルへ安全に出力する薄いRustラッパーです。画像のデコード、文字描画、合成、アニメーションは本クレートの責務ではありません。
 
 初期対応は Raspberry Pi 5 / Raspberry Pi OS Lite 64-bit / 64×32 HUB75 パネル（デイジーチェーン対応）です。C++ ABIや上流オプション構造体は公開せず、小さなCブリッジだけをFFI境界にしています。
 
@@ -17,7 +17,7 @@ cargo build --release
 GPIOへのアクセスには通常root権限が必要です。64×32パネル2枚（128×32）の例は次のとおりです。
 
 ```sh
-sudo cargo run --release --example show_png -- image.png \
+sudo cargo run --release --example show_image -- image.png \
   --rows 32 --cols 64 --chain-length 2 --brightness 30 --rp1-backend rio
 ```
 
@@ -42,7 +42,7 @@ matrix.present_rgb(&frame)?;
 ## Examples
 
 - `solid_color`: 単色表示。Ctrl+Cで消灯します。
-- `show_png`: PNGをexample側でRGB8へ変換し、必要なら`--resize`でNearest Neighborリサイズします。`--duration`で表示秒数を指定できます。
+- `show_image`: PNGまたはアニメーションGIFをexample側でRGB8へ変換して表示します。GIFはフレーム遅延に従ってループ表示し、必要なら`--resize`でNearest Neighborリサイズします。`--duration`で表示秒数を指定できます。
 - `animation`: 毎フレームRGB8バッファを生成して送る最小例です。
 
 ## License and upstream

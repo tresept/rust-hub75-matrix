@@ -18,4 +18,4 @@ cc = "1"
 anyhow = "1"
 clap = { version = "4", features = ["derive"] }
 ctrlc = "3"
-image = { version = "0.25", default-features = false, features = ["png"] }
+image = { version = "0.25", default-features = false, features = ["gif", "png"] }
