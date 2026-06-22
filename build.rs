@@ -31,7 +31,10 @@ fn main() {
         "cargo:rustc-link-search=native={}",
         upstream.join("lib").display()
     );
-    println!("cargo:rustc-link-lib=static=rgbmatrix");
+    // The bridge calls the upstream C API, but Rust has no direct extern
+    // declaration for those symbols. Force the complete upstream archive into
+    // the final link so the linker retains the C API members needed by bridge.o.
+    println!("cargo:rustc-link-lib=static:+whole-archive=rgbmatrix");
     println!("cargo:rustc-link-lib=dylib=stdc++");
     println!("cargo:rustc-link-lib=dylib=pthread");
     println!("cargo:rustc-link-lib=dylib=rt");
